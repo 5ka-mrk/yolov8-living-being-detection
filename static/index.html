@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Living Being Detector</title>
+  <style>
+    body { font-family: Arial; background: #ffe0e9; padding: 20px; text-align: center; }
+    h1 { color: #444; }
+    input { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>YOLOv8 Detector: Humans, Cats, Dogs</h1>
+  <input type="file" id="upload" />
+  <button onclick="uploadFile()">Detect</button>
+  <pre id="result"></pre>
+
+  <script>
+    async function uploadFile() {
+      const fileInput = document.getElementById('upload');
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      const response = await fetch('/detect/', {
+        method: 'POST',
+        body: formData
+      });
+
+      const result = await response.json();
+      document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+    }
+  </script>
+</body>
+</html>
