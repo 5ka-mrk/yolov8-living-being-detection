@@ -1,33 +1,136 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Living Being Detector</title>
+  <meta charset="UTF-8">
+  <title>YOLOv8 Object Detection</title>
   <style>
-    body { font-family: Arial; background: #ffe0e9; padding: 20px; text-align: center; }
-    h1 { color: #444; }
-    input { margin-top: 20px; }
+    body {
+      background: linear-gradient(to right, #fbc2eb, #a6c1ee);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 700px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      margin-top: 20px;
+      padding: 12px;
+      border: 2px dashed #aaa;
+      border-radius: 10px;
+      width: 100%;
+      font-size: 16px;
+      background: #fff0f6; /* slight pink tint */
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #ff758c, #ff7eb3);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(255, 100, 150, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #ff6a95, #ff89b3);
+      transform: scale(1.05);
+    }
+
+    pre {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+      text-align: left;
+      overflow-x: auto;
+      font-size: 15px;
+    }
+
+    img {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 1000px;
+      height: auto;
+      border-radius: 12px;
+      display: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
   </style>
 </head>
 <body>
-  <h1>YOLOv8 Detector: Humans, Cats, Dogs</h1>
-  <input type="file" id="upload" />
-  <button onclick="uploadFile()">Detect</button>
-  <pre id="result"></pre>
+  <div class="card">
+    <h1>YOLOv8 Object Detection</h1>
+    <p>Upload an image to detect people, cats, and dogs.</p>
 
-  <script>
-    async function uploadFile() {
-      const fileInput = document.getElementById('upload');
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
+    <input type="file" id="imgInput" accept="image/*" />
+    <button onclick="uploadImage()">Detect Objects</button>
 
-      const response = await fetch('/detect/', {
-        method: 'POST',
+    <h3>Detection Results:</h3>
+    <pre id="output">Waiting for upload...</pre>
+    <img id="resultImg" />
+  </div>
+
+ <script>
+  async function uploadImage() {
+    const input = document.getElementById('imgInput');
+    const output = document.getElementById('output');
+    const resultImg = document.getElementById('resultImg');
+
+    if (!input.files.length) {
+      alert("Please select an image.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", input.files[0]);
+
+    output.textContent = "Detecting...";
+
+    try {
+      const response = await fetch("/detect/", {
+        method: "POST",
         body: formData
       });
 
-      const result = await response.json();
-      document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+      if (!response.ok) throw new Error("Server Error");
+
+      const data = await response.json();
+      output.textContent = JSON.stringify(data.counts, null, 2);
+      resultImg.src = data.image_url;  // ✅ Corrected
+      resultImg.style.display = "block";
+    } catch (err) {
+      output.textContent = "Error: " + err.message;
+      resultImg.style.display = "none";
     }
-  </script>
+  }
+</script>
+
 </body>
 </html>

@@ -1,0 +1,1 @@
+# yolov8-living-being-detection
